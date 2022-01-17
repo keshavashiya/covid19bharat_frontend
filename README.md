@@ -23,6 +23,9 @@ target='_blank'>DataKind Bangalore</a> is leading this
 effort, coordinating many dedicated volunteers, with additional support from <a
 href='https://www.devdatalab.org' target='_blank'>Development Data Lab</a>.
 
+<a href='https://covid19india.vercel.app/'
+target='_blank'>Covid19 India</a>
+
 ## Setup
 
 To run a local copy of this website, clone the repo, `cd` into it, and:
