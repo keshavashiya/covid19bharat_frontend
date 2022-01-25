@@ -12,7 +12,7 @@ import {animated, useSpring, Globals} from 'react-spring';
 // It renders administered => administergba(255, 0, 0, 1)
 Globals.assign({colors: null});
 
-function ProgressBar({dose1, dose2}) {
+function ProgressBar({dose1, dose2, booster}) {
   const {t} = useTranslation();
   const [highlightedDose, setHighlightedDose] = useState(2);
   const isMounted = useRef(false);
@@ -20,9 +20,11 @@ function ProgressBar({dose1, dose2}) {
   const doseSpring = useSpring({
     dose1,
     dose2,
+    booster,
     from: {
       dose1: 0,
       dose2: 0,
+      booster: 0,
     },
     delay: isMounted.current ? 0 : 2000,
   });
@@ -108,6 +110,34 @@ function ProgressBar({dose1, dose2}) {
           </div>
         </div>
       )}
+      {booster > 0 && (
+        <div
+          className={classnames('legend', {
+            highlighted: highlightedDose === 2,
+          })}
+        >
+          <animated.div
+            className="arrow"
+            style={{
+              marginLeft: doseSpring.booster.to((n) => `calc(${n}% - 0.3ch)`),
+            }}
+          >
+            |
+          </animated.div>
+          <div className="label-wrapper">
+            <animated.div
+              style={{
+                width: doseSpring.booster.to((n) => `calc(${n}% - 4rem)`),
+              }}
+            />
+            <animated.div className="label">
+              {doseSpring.booster.to(
+                (n) => `${t('Precautionary dose')} (${formatNumber(n, '%')})`
+              )}
+            </animated.div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -124,22 +154,24 @@ function Level({data}) {
   const statisticConfig = STATISTIC_CONFIGS.vaccinated;
 
   return (
-    <div
-      className="level-vaccinated fadeInUp"
-      style={{animationDelay: `${750 + 4 * 250}ms`}}
-    >
-      <ShieldCheckIcon />
-      <animated.div>
-        {spring.total.to((total) => formatNumber(total, 'long'))}
-      </animated.div>
-      {/* <animated.div>
-        {spring.delta.to(
-          (delta) =>
-            `(+ ${formatNumber(delta, 'long')})`
-        )}
-      </animated.div> */}
-      <div>{t(statisticConfig.displayName)}</div>
-    </div>
+    <>
+      <div
+        className="level-vaccinated fadeInUp"
+        style={{animationDelay: `${750 + 4 * 250}ms`}}
+      >
+        <ShieldCheckIcon />
+        <animated.div>
+          {spring.total.to((total) => formatNumber(total, 'long'))}
+        </animated.div>
+        {/* <animated.div>
+          {spring.delta.to(
+            (delta) =>
+              `(+ ${formatNumber(delta, 'long')})`
+          )}
+        </animated.div> */}
+        <div>{t(statisticConfig.displayName)}</div>
+      </div>
+    </>
   );
 }
 
@@ -150,11 +182,14 @@ function VaccinationHeader({data}) {
   const dose2 = getStatistic(data, 'total', 'vaccinated2', {
     normalizedByPopulationPer: 'hundred',
   });
+  const booster = getStatistic(data, 'total', 'precautionary', {
+    normalizedByPopulationPer: 'hundred',
+  });
 
   return (
     <div className="VaccinationHeader">
       <Level {...{data}} />
-      <ProgressBar {...{dose1, dose2}} />
+      <ProgressBar {...{dose1, dose2, booster}} />
     </div>
   );
 }
